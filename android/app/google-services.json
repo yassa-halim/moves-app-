@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "690531175176",
+    "project_id": "move-app-2a58b",
+    "storage_bucket": "move-app-2a58b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:690531175176:android:26198e6d03216b2d133abd",
+        "android_client_info": {
+          "package_name": "com.moviesapp.flutter.movies"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAxSCcDZiU91bjHMjX0LUBpI4YAXbSijU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
