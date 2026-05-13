@@ -120,7 +120,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             const SizedBox(height: 16),
             const Text(
-              'Supervised by Mohamed Nabil',
+              'Supervised by Yassa Halim',
               style: TextStyle(color: Colors.white, fontSize: 14),
             ),
             const SizedBox(height: 32),
