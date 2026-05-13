@@ -21,7 +21,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late PageController _carouselController;
   int _currentCarouselIndex = 0;
-  int? _pressedCarouselIndex;
+
   bool _isInit = false;
 
   
@@ -400,8 +400,7 @@ class _CinematicMovieCardState extends State<CinematicMovieCard> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+
 
     final width = widget.isHero ? 234.0 : 140.0;
     final height = widget.isHero ? 351.0 : 210.0;
