@@ -51,3 +51,14 @@ class ResetPasswordRequested extends AuthEvent {
   @override
   List<Object> get props => [email];
 }
+
+class UpdateProfileRequested extends AuthEvent {
+  final String? name;
+  final String? phone;
+  final String? avatarUrl;
+
+  const UpdateProfileRequested({this.name, this.phone, this.avatarUrl});
+
+  @override
+  List<Object?> get props => [name, phone, avatarUrl];
+}

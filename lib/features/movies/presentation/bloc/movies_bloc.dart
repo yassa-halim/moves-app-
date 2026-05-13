@@ -28,17 +28,17 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
   Future<void> _onFetchMovieDetails(FetchMovieDetailsEvent event, Emitter<MoviesState> emit) async {
     emit(MoviesLoading());
     
-    // Fetch details
+    
     final detailResult = await repository.getMovieDetails(event.movieId);
     
     await detailResult.fold(
       (failure) async => emit(MoviesError(failure.message)),
       (movie) async {
-        // Fetch suggestions right after details
+        
         final suggestionResult = await repository.getMovieSuggestions(event.movieId);
         
         suggestionResult.fold(
-          (failure) => emit(MoviesError(failure.message)), // Or just load details without suggestions
+          (failure) => emit(MoviesError(failure.message)), 
           (suggestions) => emit(MovieDetailsLoaded(movie, suggestions)),
         );
       },

@@ -42,16 +42,16 @@ class _MainLayoutState extends State<MainLayout> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundDark,
-      extendBody: true, // Allows background to flow under the floating nav bar
+      extendBody: true, 
       body: Stack(
         children: [
-          // Main content preserved across tab switches
+          
           IndexedStack(
             index: _currentIndex,
             children: _pages,
           ),
           
-          // Floating Glassmorphism Bottom Navigation Bar
+          
           Positioned(
             left: 24,
             right: 24,

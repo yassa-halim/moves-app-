@@ -25,7 +25,7 @@ class _RegisterPageState extends State<RegisterPage> {
   
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
-  int _selectedAvatarIndex = 1; // Middle one selected by default
+  int _selectedAvatarIndex = 1; 
   late PageController _avatarPageController;
 
   final List<String> _avatars = [
@@ -68,7 +68,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    // Fallback if l10n is null
+    
     final loc = l10n!;
     final isEnglish = context.watch<LanguageCubit>().state.languageCode == 'en';
 
@@ -91,11 +91,15 @@ class _RegisterPageState extends State<RegisterPage> {
               SnackBar(content: Text(state.message), backgroundColor: AppTheme.destructiveRed),
             );
           } else if (state is Authenticated) {
-            Navigator.of(context).pop();
+            Future.delayed(const Duration(seconds: 2), () {
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
+            });
           }
         },
         builder: (context, state) {
-          if (state is AuthLoading) {
+          if (state is AuthLoading || state is Authenticated) {
             return const Center(child: CircularProgressIndicator(color: AppTheme.primaryYellow));
           }
 
@@ -106,7 +110,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Avatar Carousel
+                  
                   SizedBox(
                     height: 140,
                     child: PageView.builder(
@@ -159,7 +163,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Name Field
+                  
                   TextFormField(
                     controller: _nameController,
                     style: const TextStyle(color: Colors.white),
@@ -177,7 +181,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Email Field
+                  
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -196,7 +200,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Password Field
+                  
                   TextFormField(
                     controller: _passwordController,
                     obscureText: !_isPasswordVisible,
@@ -222,7 +226,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Confirm Password Field
+                  
                   TextFormField(
                     controller: _confirmPasswordController,
                     obscureText: !_isConfirmPasswordVisible,
@@ -252,7 +256,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Phone Number Field
+                  
                   TextFormField(
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
@@ -270,7 +274,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Register Button
+                  
                   SizedBox(
                     height: 55,
                     child: ElevatedButton(
@@ -279,7 +283,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         backgroundColor: AppTheme.primaryYellow,
                         foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(30),
                         ),
                       ),
                       child: Text(loc.createAccount, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -287,7 +291,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Already Have Account
+                  
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -300,7 +304,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Language Switcher (Same as Login Page)
+                  
                   Center(
                     child: GestureDetector(
                       onTap: () {
@@ -317,13 +321,13 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         child: Stack(
                           children: [
-                            // Animated Yellow Circle Background
+                            
                             AnimatedAlign(
                               duration: const Duration(milliseconds: 300),
                               curve: Curves.easeInOut,
                               alignment: isEnglish ? Alignment.centerLeft : Alignment.centerRight,
                               child: Container(
-                                width: 28, // Matches the inner height exactly (40 - 8 padding = 32, slightly smaller to look good)
+                                width: 28, 
                                 height: 28,
                                 decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
@@ -331,24 +335,24 @@ class _RegisterPageState extends State<RegisterPage> {
                                 ),
                               ),
                             ),
-                            // Row of Flags
+                            
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                // English Flag
+                                
                                 Padding(
                                   padding: const EdgeInsets.only(left: 4.0),
                                   child: Image.asset(
-                                    AppAssets.flagLR, // USA/English Flag
+                                    AppAssets.flagLR, 
                                     width: 20,
                                     height: 20,
                                   ),
                                 ),
-                                // Arabic Flag
+                                
                                 Padding(
                                   padding: const EdgeInsets.only(right: 4.0),
                                   child: Image.asset(
-                                    AppAssets.flagEG, // Egypt/Arabic Flag
+                                    AppAssets.flagEG, 
                                     width: 20,
                                     height: 20,
                                   ),

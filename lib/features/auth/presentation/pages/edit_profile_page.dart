@@ -5,6 +5,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_state.dart';
+import '../bloc/auth_event.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -18,7 +19,7 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
   late TextEditingController _phoneController;
   late AnimationController _fadeController;
   
-  String _selectedAvatar = AppAssets.avatarBeardHeadphones; // Default
+  String _selectedAvatar = AppAssets.avatarBeardHeadphones; 
   
   final List<String> _avatars = [
     AppAssets.avatarBeardHeadphones,
@@ -42,7 +43,7 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
       duration: const Duration(milliseconds: 800),
     )..forward();
 
-    // In a real app, we'd initialize the controllers with data from AuthBloc
+    
     final state = context.read<AuthBloc>().state;
     if (state is Authenticated && state.user.name != null) {
       _nameController.text = state.user.name!;
@@ -69,30 +70,36 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
               height: MediaQuery.of(context).size.height * 0.55,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E1E1E), // Dark charcoal
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                color: const Color(0xFF161616),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
+                border: Border.all(color: Colors.white.withOpacity(0.05), width: 0.5),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.8), blurRadius: 40, offset: const Offset(0, -10))
+                  BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 40, offset: const Offset(0, -10))
                 ],
               ),
               child: Column(
                 children: [
                   Container(
-                    width: 40,
-                    height: 4,
+                    width: 50,
+                    height: 5,
                     decoration: BoxDecoration(
-                      color: Colors.white24,
-                      borderRadius: BorderRadius.circular(2),
+                      color: Colors.white10,
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
+                  const Text(
+                    'Choose Your Avatar',
+                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 32),
                   Expanded(
                     child: GridView.builder(
                       physics: const BouncingScrollPhysics(),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 20,
+                        mainAxisSpacing: 20,
                       ),
                       itemCount: _avatars.length,
                       itemBuilder: (context, index) {
@@ -103,27 +110,27 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
                           onTap: () {
                             setState(() => _selectedAvatar = avatar);
                             setStateModal(() {});
-                            Future.delayed(const Duration(milliseconds: 300), () {
+                            Future.delayed(const Duration(milliseconds: 250), () {
                               if (mounted) Navigator.pop(context);
                             });
                           },
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
-                            curve: Curves.easeOutCubic,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
+                              shape: BoxShape.circle,
                               border: Border.all(
-                                color: isSelected ? AppTheme.primaryYellow : Colors.transparent,
-                                width: 2,
+                                color: isSelected ? AppTheme.primaryYellow : Colors.white.withOpacity(0.05),
+                                width: isSelected ? 3 : 1,
                               ),
-                              color: Colors.black26,
                               boxShadow: isSelected 
-                                ? [BoxShadow(color: AppTheme.primaryYellow.withOpacity(0.3), blurRadius: 15)]
+                                ? [BoxShadow(color: AppTheme.primaryYellow.withOpacity(0.2), blurRadius: 15)]
                                 : [],
                             ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(18),
-                              child: Image.asset(avatar, fit: BoxFit.cover),
+                            child: Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: ClipOval(
+                                child: Image.asset(avatar, fit: BoxFit.cover),
+                              ),
                             ),
                           ),
                         );
@@ -146,27 +153,50 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeController,
+          child: BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is Authenticated) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Profile updated successfully!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            } else if (state is AuthError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: AppTheme.destructiveRed,
+                ),
+              );
+            }
+          },
           child: Column(
             children: [
-              // Custom App Bar
+              
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Row(
                   children: [
                     _HoverScaleIcon(
                       onTap: () => Navigator.pop(context),
-                      icon: Icons.arrow_back,
-                      color: AppTheme.primaryYellow,
+                      icon: Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white,
                     ),
                     const Expanded(
                       child: Center(
                         child: Text(
-                          'Pick Avatar',
-                          style: TextStyle(color: AppTheme.primaryYellow, fontSize: 18, fontWeight: FontWeight.bold),
+                          'Edit Profile',
+                          style: TextStyle(
+                            color: Colors.white, 
+                            fontSize: 22, 
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.0,
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 48), // Balance for centering
+                    const SizedBox(width: 68),
                   ],
                 ),
               ),
@@ -180,31 +210,57 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
                     children: [
                       const SizedBox(height: 32),
                       
-                      // Avatar
+                      
                       Center(
-                        child: GestureDetector(
-                          onTap: _showAvatarPickerModal,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            width: 140,
-                            height: 140,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 20, offset: const Offset(0, 10))
-                              ],
-                              image: DecorationImage(
-                                image: AssetImage(_selectedAvatar),
-                                fit: BoxFit.cover,
+                        child: Stack(
+                          children: [
+                            GestureDetector(
+                              onTap: _showAvatarPickerModal,
+                              child: Container(
+                                width: 160,
+                                height: 160,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: AppTheme.primaryYellow.withOpacity(0.5), width: 4),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppTheme.primaryYellow.withOpacity(0.15),
+                                      blurRadius: 30,
+                                      spreadRadius: 5,
+                                    )
+                                  ],
+                                  image: DecorationImage(
+                                    image: AssetImage(_selectedAvatar),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                            Positioned(
+                              bottom: 5,
+                              right: 5,
+                              child: GestureDetector(
+                                onTap: _showAvatarPickerModal,
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: const BoxDecoration(
+                                    color: AppTheme.primaryYellow,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))
+                                    ],
+                                  ),
+                                  child: const Icon(Icons.camera_alt_rounded, color: Colors.black, size: 22),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       
                       const SizedBox(height: 48),
 
-                      // Input Fields
+                      
                       _buildTextField(
                         controller: _nameController,
                         icon: Icons.person_rounded,
@@ -218,7 +274,7 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
 
                       const SizedBox(height: 24),
 
-                      // Reset Password
+                      
                       GestureDetector(
                         onTap: () {},
                         child: Text(
@@ -237,7 +293,7 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
                 ),
               ),
 
-              // Bottom Action Buttons
+              
               Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
@@ -248,8 +304,8 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
                         height: 56,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE50914), // Netflix Red
-                          borderRadius: BorderRadius.circular(16),
+                          color: const Color(0xFFE50914), 
+                          borderRadius: BorderRadius.circular(30),
                           boxShadow: [BoxShadow(color: const Color(0xFFE50914).withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 4))],
                         ),
                         child: const Center(
@@ -262,21 +318,52 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
                     ),
                     const SizedBox(height: 16),
                     _HoverScaleButton(
-                      onTap: () {},
-                      child: Container(
-                        height: 56,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryYellow,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [BoxShadow(color: AppTheme.primaryYellow.withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 4))],
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'Update Data',
-                            style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+                      onTap: () {
+                        context.read<AuthBloc>().add(
+                          UpdateProfileRequested(
+                            name: _nameController.text,
+                            phone: _phoneController.text,
+                            avatarUrl: _selectedAvatar,
                           ),
-                        ),
+                        );
+                      },
+                      child: BlocBuilder<AuthBloc, AuthState>(
+                        builder: (context, state) {
+                          return Container(
+                            height: 56,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryYellow,
+                              borderRadius: BorderRadius.circular(30),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.primaryYellow.withOpacity(0.3),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                )
+                              ],
+                            ),
+                            child: Center(
+                              child: state is AuthLoading
+                                  ? const SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.black,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Update Data',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -286,6 +373,7 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -296,27 +384,18 @@ class _EditProfilePageState extends State<EditProfilePage> with SingleTickerProv
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E), // Dark charcoal input background
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 4))
-        ],
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
       ),
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
-        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
         decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: Colors.white54),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: AppTheme.primaryYellow, width: 1.5),
-          ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 20),
+          prefixIcon: Icon(icon, color: AppTheme.primaryYellow, size: 22),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         ),
       ),
     );

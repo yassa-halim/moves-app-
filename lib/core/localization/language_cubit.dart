@@ -13,7 +13,7 @@ class LanguageCubit extends Cubit<Locale> {
     if (languageCode != null) {
       return Locale(languageCode);
     }
-    // Default to English
+    
     return const Locale('en');
   }
 

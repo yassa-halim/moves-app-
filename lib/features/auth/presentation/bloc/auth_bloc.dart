@@ -13,6 +13,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<GoogleLoginRequested>(_onGoogleLoginRequested);
     on<LogoutRequested>(_onLogoutRequested);
     on<ResetPasswordRequested>(_onResetPasswordRequested);
+    on<UpdateProfileRequested>(_onUpdateProfileRequested);
   }
 
   Future<void> _onCheckAuthStatus(CheckAuthStatus event, Emitter<AuthState> emit) async {
@@ -78,6 +79,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     result.fold(
       (failure) => emit(AuthError(failure.message)),
       (_) => emit(PasswordResetEmailSent()),
+    );
+  }
+
+  Future<void> _onUpdateProfileRequested(UpdateProfileRequested event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    final result = await repository.updateProfile(
+      name: event.name,
+      phone: event.phone,
+      avatarUrl: event.avatarUrl,
+    );
+    result.fold(
+      (failure) => emit(AuthError(failure.message)),
+      (user) => emit(Authenticated(user)),
     );
   }
 }

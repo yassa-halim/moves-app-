@@ -44,7 +44,7 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
   @override
   void initState() {
     super.initState();
-    // Event dispatched by parent BlocProvider, no need here
+    
 
     _staggerController = AnimationController(
       vsync: this,
@@ -111,7 +111,7 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Watch Button
+                        
                         _AnimatedReveal(
                           controller: _staggerController,
                           index: 1,
@@ -119,7 +119,7 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
                         ),
                         const SizedBox(height: 24),
 
-                        // Stats Row
+                        
                         _AnimatedReveal(
                           controller: _staggerController,
                           index: 2,
@@ -127,7 +127,7 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
                         ),
                         const SizedBox(height: 32),
 
-                        // Screenshots
+                        
                         if (movie.screenshots.isNotEmpty) ...[
                           _AnimatedReveal(
                             controller: _staggerController,
@@ -137,7 +137,7 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
                           const SizedBox(height: 32),
                         ],
 
-                        // Similar Movies
+                        
                         if (suggestions.isNotEmpty) ...[
                           _AnimatedReveal(
                             controller: _staggerController,
@@ -147,7 +147,7 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
                           const SizedBox(height: 32),
                         ],
 
-                        // Summary
+                        
                         _AnimatedReveal(
                           controller: _staggerController,
                           index: 5,
@@ -172,7 +172,7 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
                         ),
                         const SizedBox(height: 32),
 
-                        // Cast
+                        
                         if (movie.cast.isNotEmpty) ...[
                           _AnimatedReveal(
                             controller: _staggerController,
@@ -195,7 +195,7 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
                           const SizedBox(height: 32),
                         ],
 
-                        // Genres
+                        
                         if (movie.genres.isNotEmpty) ...[
                           _AnimatedReveal(
                             controller: _staggerController,
@@ -215,7 +215,7 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
                             index: 10,
                             child: _buildGenres(movie.genres),
                           ),
-                          const SizedBox(height: 48), // Bottom spacing
+                          const SizedBox(height: 48), 
                         ],
                       ],
                     ),
@@ -257,7 +257,7 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
         background: Stack(
           fit: StackFit.expand,
           children: [
-            // Ambient Blurred Layer
+            
             RepaintBoundary(
               child: AnimatedBuilder(
                 animation: _ambientController,
@@ -278,10 +278,10 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
               ),
             ),
 
-            // Main Poster
+            
             CachedNetworkImage(imageUrl: posterUrl, fit: BoxFit.cover, memCacheWidth: 600),
 
-            // Bottom Gradient
+            
             Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -298,7 +298,7 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
               ),
             ),
 
-            // Huge Watermark Text Behind Title
+            
             Positioned(
               bottom: 40,
               left: -20,
@@ -317,7 +317,7 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
               ),
             ),
 
-            // Center Play Button
+            
             Center(
               child: _AnimatedReveal(
                 controller: _staggerController,
@@ -326,7 +326,7 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
               ),
             ),
 
-            // Title and Year
+            
             Positioned(
               bottom: 24,
               left: 24,
@@ -391,7 +391,7 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
               height: 80,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white,
+                color: AppTheme.primaryYellow,
                 border: Border.all(color: AppTheme.primaryYellow, width: 4),
                 boxShadow: const [
                   BoxShadow(
@@ -403,7 +403,7 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
               ),
               child: const Icon(
                 Icons.play_arrow_rounded,
-                color: AppTheme.primaryYellow,
+                color: Colors.white,
                 size: 40,
               ),
             ),
@@ -419,8 +419,8 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
       child: Container(
         height: 56,
         decoration: BoxDecoration(
-          color: const Color(0xFFE50914), // Netflix Red
-          borderRadius: BorderRadius.circular(20), // Updated to 20px
+          color: const Color(0xFFE50914), 
+          borderRadius: BorderRadius.circular(20), 
           boxShadow: [
             BoxShadow(
               color: const Color(0xFFE50914).withOpacity(0.4),
@@ -465,7 +465,7 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
 
   Widget _buildStatCard(IconData icon, String value) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(18), // Updated to 18px
+      borderRadius: BorderRadius.circular(18), 
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
@@ -496,8 +496,8 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
   }
 
   Widget _buildScreenshotsSection(Movie movie) {
-    // If the user wants a vertical list as in the image, we can switch here.
-    // The instructions say "Horizontal snapping gallery" so we use a horizontal list.
+    
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -530,9 +530,9 @@ class _MovieDetailsViewState extends State<_MovieDetailsView>
           ],
         ),
         const SizedBox(height: 16),
-        // Since image shows stacked vertically, but text says horizontal:
-        // We will build a vertical list if we assume the screenshot is the ground truth for layout.
-        // Let's implement vertical list to perfectly match the screenshot provided.
+        
+        
+        
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),

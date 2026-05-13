@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
@@ -48,8 +50,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    // If l10n is null (before first frame of localization loads), fallback to English text via hardcoding or just return empty for a split second.
-    // It's safe to use `!` because MaterialApp is configured.
+    
+    
     final loc = l10n!;
     final isEnglish = context.watch<LanguageCubit>().state.languageCode == 'en';
 
@@ -62,13 +64,17 @@ class _LoginPageState extends State<LoginPage> {
               SnackBar(content: Text(state.message), backgroundColor: AppTheme.destructiveRed),
             );
           } else if (state is Authenticated) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const MainLayout()),
-            );
+            Future.delayed(const Duration(seconds: 2), () {
+              if (context.mounted) {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const MainLayout()),
+                );
+              }
+            });
           }
         },
         builder: (context, state) {
-          if (state is AuthLoading) {
+          if (state is AuthLoading || state is Authenticated) {
             return const Center(child: CircularProgressIndicator(color: AppTheme.primaryYellow));
           }
 
@@ -81,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-                    // Logo
+                    
                     Center(
                       child: Image.asset(
                         'assets/images/Group 44.png',
@@ -90,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 64),
-                    // Email Field
+                    
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -108,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                       validator: (value) => value!.isEmpty ? 'Please enter email' : null,
                     ),
                     const SizedBox(height: 16),
-                    // Password Field
+                    
                     TextFormField(
                       controller: _passwordController,
                       obscureText: !_isPasswordVisible,
@@ -137,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
                       validator: (value) => value!.isEmpty ? 'Please enter password' : null,
                     ),
                     const SizedBox(height: 8),
-                    // Forget Password
+                    
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
@@ -153,7 +159,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    // Login Button
+                    
                     SizedBox(
                       height: 55,
                       child: ElevatedButton(
@@ -162,14 +168,14 @@ class _LoginPageState extends State<LoginPage> {
                           backgroundColor: AppTheme.primaryYellow,
                           foregroundColor: Colors.black,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(30),
                           ),
                         ),
                         child: Text(loc.login, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       ),
                     ),
                     const SizedBox(height: 24),
-                    // Create Account
+                    
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -183,19 +189,19 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                     const SizedBox(height: 32),
-                    // OR Divider
+                    
                     Row(
                       children: [
-                        const Expanded(child: Divider(color: AppTheme.primaryYellow, thickness: 1)),
+                        const Expanded(child: Divider(color: Colors.white24, thickness: 1)),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(loc.or, style: const TextStyle(color: AppTheme.primaryYellow, fontSize: 14)),
+                          child: Text(loc.or, style: const TextStyle(color: Colors.white, fontSize: 14)),
                         ),
-                        const Expanded(child: Divider(color: AppTheme.primaryYellow, thickness: 1)),
+                        const Expanded(child: Divider(color: Colors.white24, thickness: 1)),
                       ],
                     ),
                     const SizedBox(height: 32),
-                    // Login With Google
+                    
                     SizedBox(
                       height: 55,
                       child: ElevatedButton.icon(
@@ -204,15 +210,19 @@ class _LoginPageState extends State<LoginPage> {
                           backgroundColor: AppTheme.primaryYellow,
                           foregroundColor: Colors.black,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        icon: const Icon(Icons.g_mobiledata, color: Colors.black, size: 36), 
+                        icon: SvgPicture.asset(
+                          'assets/images/🦆 icon _google_.svg',
+                          height: 24,      
+                          width: 24,
+                        ),
                         label: Text(loc.loginWithGoogle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                       ),
                     ),
                     const SizedBox(height: 48),
-                    // Language Switcher
+                    
                     Center(
                       child: GestureDetector(
                         onTap: () {
@@ -229,13 +239,13 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           child: Stack(
                             children: [
-                              // Animated Yellow Circle Background
+                              
                               AnimatedAlign(
                                 duration: const Duration(milliseconds: 300),
                                 curve: Curves.easeInOut,
                                 alignment: isEnglish ? Alignment.centerLeft : Alignment.centerRight,
                                 child: Container(
-                                  width: 28, // Matches the inner height exactly (40 - 8 padding = 32, slightly smaller to look good)
+                                  width: 28, 
                                   height: 28,
                                   decoration: const BoxDecoration(
                                     color: AppTheme.primaryYellow,
@@ -243,7 +253,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 ),
                               ),
-                              // Flags
+                              
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [

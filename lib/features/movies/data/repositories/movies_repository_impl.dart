@@ -21,14 +21,14 @@ class MoviesRepositoryImpl implements MoviesRepository {
     try {
       final remoteMovies = await remoteDataSource.getMovies(page: page, genre: genre, query: query);
       
-      // If fetching the first page of general movies, cache them
+      
       if (page == 1 && (genre == null || genre.isEmpty) && (query == null || query.isEmpty)) {
         await localDataSource.cacheMovies(remoteMovies);
       }
       
       return Right(remoteMovies);
     } on ServerException catch (e) {
-      // If network fails, try to load from cache
+      
       try {
         final localMovies = await localDataSource.getCachedMovies();
         if (localMovies.isNotEmpty) {

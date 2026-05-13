@@ -7,7 +7,7 @@ abstract class MoviesRepository {
   Future<Either<Failure, Movie>> getMovieDetails(int movieId);
   Future<Either<Failure, List<Movie>>> getMovieSuggestions(int movieId);
   
-  // Local caching methods
+  
   Future<Either<Failure, List<Movie>>> getCachedMovies();
   Future<void> cacheMovies(List<Movie> movies);
 }

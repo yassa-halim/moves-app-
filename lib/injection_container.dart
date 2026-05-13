@@ -20,18 +20,18 @@ import 'core/localization/language_cubit.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
-  // Core
+  
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
   sl.registerLazySingleton(() => LanguageCubit(sl()));
 
-  // External
+  
   sl.registerLazySingleton(() => http.Client());
   sl.registerLazySingleton(() => Hive);
   sl.registerLazySingleton(() => FirebaseAuth.instance);
   sl.registerLazySingleton(() => GoogleSignIn());
 
-  // Data sources
+  
   sl.registerLazySingleton<MoviesRemoteDataSource>(
     () => MoviesRemoteDataSourceImpl(client: sl()),
   );
@@ -45,7 +45,7 @@ Future<void> init() async {
     ),
   );
 
-  // Repository
+  
   sl.registerLazySingleton<MoviesRepository>(
     () => MoviesRepositoryImpl(
       remoteDataSource: sl(),
@@ -58,7 +58,7 @@ Future<void> init() async {
     ),
   );
 
-  // BLoCs
+  
   sl.registerFactory(() => AuthBloc(repository: sl()));
   sl.registerFactory(() => MoviesBloc(repository: sl()));
 }

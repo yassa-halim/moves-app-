@@ -18,7 +18,7 @@ class ExplorePage extends StatefulWidget {
 
 class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin {
   final List<String> _genres = ['Action', 'Adventure', 'Animation', 'Biography', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Family', 'Fantasy', 'History', 'Horror', 'Music', 'Mystery', 'Romance', 'Sci-Fi', 'Sport', 'Thriller', 'War', 'Western'];
-  String _selectedGenre = 'Action'; // Default to first item
+  String _selectedGenre = 'Action'; 
   
   late AnimationController _staggerController;
 
@@ -57,7 +57,7 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Genre Tabs
+            
             Container(
               height: 50,
               margin: const EdgeInsets.only(top: 16, bottom: 8),
@@ -108,7 +108,7 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
               ),
             ),
             
-            // Grid Content
+            
             Expanded(
               child: BlocConsumer<MoviesBloc, MoviesState>(
                 listener: (context, state) {
@@ -187,17 +187,17 @@ class _CinematicMovieCardState extends State<_CinematicMovieCard> {
         curve: Curves.easeOutBack,
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(20),
             boxShadow: _isPressed 
               ? [BoxShadow(color: AppTheme.primaryYellow.withOpacity(0.3), blurRadius: 20, spreadRadius: 2)]
               : [BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 10, offset: const Offset(0, 5))],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(20),
             child: Stack(
               fit: StackFit.expand,
               children: [
-                // Poster
+                
                 CachedNetworkImage(
                   imageUrl: widget.movie.mediumCoverImage,
                   fit: BoxFit.cover,
@@ -206,19 +206,9 @@ class _CinematicMovieCardState extends State<_CinematicMovieCard> {
                   errorWidget: (context, url, error) => Container(color: Colors.white.withOpacity(0.05), child: const Icon(Icons.error, color: Colors.white54)),
                 ),
                 
-                // Bottom Gradient Overlay for readability if we add text later
-                Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.transparent, Colors.black87],
-                      stops: [0.7, 1.0],
-                    ),
-                  ),
-                ),
                 
-                // Rating Badge
+                
+                
                 Positioned(
                   top: 12,
                   left: 12,

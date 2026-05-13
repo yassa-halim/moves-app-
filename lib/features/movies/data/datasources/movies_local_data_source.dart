@@ -29,9 +29,9 @@ class MoviesLocalDataSourceImpl implements MoviesLocalDataSource {
   Future<void> cacheMovies(List<MovieModel> moviesToCache) async {
     try {
       final box = await hive.openBox<MovieModel>(cachedMoviesBox);
-      await box.clear(); // Clear old cache
+      await box.clear(); 
       
-      // Cache top 20 movies for offline
+      
       final topMovies = moviesToCache.take(20).toList();
       await box.addAll(topMovies);
     } catch (e) {

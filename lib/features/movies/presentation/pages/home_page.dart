@@ -21,28 +21,38 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late PageController _carouselController;
   int _currentCarouselIndex = 0;
+  int? _pressedCarouselIndex;
+  bool _isInit = false;
 
-  // Animation Controllers
+  
   late AnimationController _floatingController;
   late AnimationController _marqueeController;
 
   @override
   void initState() {
     super.initState();
-    _carouselController = PageController(viewportFraction: 0.55);
     context.read<MoviesBloc>().add(const FetchMoviesEvent(page: 1));
 
-    // Floating Animation for center poster
+    
     _floatingController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 4),
     )..repeat(reverse: true);
 
-    // Marquee Animation for watermark
+    
     _marqueeController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 20),
     )..repeat();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInit) {
+      _carouselController = PageController(viewportFraction: 0.65);
+      _isInit = true;
+    }
   }
 
   @override
@@ -64,65 +74,96 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           if (state is MoviesLoading) {
             return const _HomePageSkeleton();
           } else if (state is MoviesError) {
-            return Center(child: Text(state.message, style: const TextStyle(color: AppTheme.destructiveRed)));
+            return Center(
+              child: Text(
+                state.message,
+                style: const TextStyle(color: AppTheme.destructiveRed),
+              ),
+            );
           } else if (state is MoviesLoaded) {
             final movies = state.movies;
-            if (movies.isEmpty) return const Center(child: Text('No movies available'));
+            if (movies.isEmpty)
+              return const Center(child: Text('No movies available'));
 
-            // Top 5 for carousel
-            final carouselMovies = movies.take(5).toList();
-            // Rest for action list
-            final categoryMovies = movies.skip(5).toList();
             
+            final carouselMovies = movies.take(12).toList();
+            
+            final categoryMovies = movies.skip(12).toList();
+
             final currentBgMovie = carouselMovies[_currentCarouselIndex];
 
             return Stack(
               children: [
-                // 1. Dynamic Background Layer with Crossfade
+                
                 Positioned.fill(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 800),
-                    child: Stack(
-                      key: ValueKey<int>(currentBgMovie.id),
-                      fit: StackFit.expand,
-                      children: [
-                        RepaintBoundary(
-                          child: ImageFiltered(
-                            imageFilter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                            child: CachedNetworkImage(
-                              imageUrl: currentBgMovie.backgroundImage.isNotEmpty 
-                                  ? currentBgMovie.backgroundImage 
-                                  : currentBgMovie.largeCoverImage,
-                              fit: BoxFit.cover,
-                              memCacheWidth: 400,
+                  child: AnimatedBuilder(
+                    animation: _carouselController,
+                    builder: (context, _) {
+                      double page = _currentCarouselIndex.toDouble();
+                      if (_carouselController.hasClients &&
+                          _carouselController.position.haveDimensions) {
+                        page = _carouselController.page!;
+                      }
+
+                      int floorIndex = page.floor();
+                      int ceilIndex = page.ceil();
+
+                      Widget buildBgLayer(int index) {
+                        if (index < 0 || index >= carouselMovies.length)
+                          return const SizedBox.shrink();
+                        final movie = carouselMovies[index];
+                        final distance = page - index;
+                        final opacity = (1.0 - distance.abs()).clamp(0.0, 1.0);
+                        final parallaxOffset = -distance * 100.0;
+
+                        return Positioned.fill(
+                          child: Opacity(
+                            opacity: opacity,
+                            child: Transform.translate(
+                              offset: Offset(parallaxOffset, 0),
+                              child: RepaintBoundary(
+                                child: CachedNetworkImage(
+                                  imageUrl: movie.backgroundImage.isNotEmpty
+                                      ? movie.backgroundImage
+                                      : movie.largeCoverImage,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                        // Dark Gradient Overlay
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                AppTheme.backgroundDark.withOpacity(0.4),
-                                AppTheme.backgroundDark.withOpacity(0.8),
-                                AppTheme.backgroundDark,
-                              ],
-                              stops: const [0.0, 0.5, 1.0],
+                        );
+                      }
+
+                      return Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          buildBgLayer(floorIndex),
+                          if (ceilIndex != floorIndex) buildBgLayer(ceilIndex),
+                          
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  AppTheme.backgroundDark.withOpacity(0.5),
+                                  AppTheme.backgroundDark.withOpacity(0.8),
+                                  AppTheme.backgroundDark,
+                                ],
+                                stops: const [0.0, 0.4, 1.0],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      );
+                    },
                   ),
                 ),
 
-                // 2. Huge Infinite Marquee Transparent Text Watermark
+                
                 Positioned(
-                  top: MediaQuery.of(context).padding.top + 30,
+                  top: MediaQuery.of(context).padding.top + 5, 
                   left: 0,
-                  right: 0,
                   child: SlideTransition(
                     position: Tween<Offset>(
                       begin: const Offset(1.0, 0.0),
@@ -131,28 +172,31 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     child: Text(
                       currentBgMovie.title.toUpperCase(),
                       maxLines: 1,
+                      softWrap: false, 
                       overflow: TextOverflow.visible,
-                      style: const TextStyle(
-                        fontSize: 140,
+                      style: TextStyle(
+                        fontSize: 220,
                         fontWeight: FontWeight.w900,
-                        color: Colors.white10,
-                        letterSpacing: 8,
+                        color: Colors.white.withOpacity(0.08),
+                        letterSpacing: 10,
                       ),
                     ),
                   ),
                 ),
 
-                // 3. Foreground Content Layer
+                
                 SafeArea(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.only(bottom: 120), // Space for floating bottom nav
+                    padding: const EdgeInsets.only(
+                      bottom: 120,
+                    ), 
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const SizedBox(height: 16),
+
                         
-                        // "Available Now" Image with Fade/Scale In
                         Center(
                           child: Image.asset(
                             AppAssets.availableNow,
@@ -160,12 +204,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             fit: BoxFit.contain,
                           ),
                         ),
-                        
+
                         const SizedBox(height: 16),
+
                         
-                        // Carousel PageView
                         SizedBox(
-                          height: 420, // Increased height for floating animation
+                          height: 420,
                           child: PageView.builder(
                             controller: _carouselController,
                             physics: const BouncingScrollPhysics(),
@@ -178,26 +222,51 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             itemBuilder: (context, index) {
                               final movie = carouselMovies[index];
                               return AnimatedBuilder(
-                                animation: Listenable.merge([_carouselController, _floatingController]),
+                                animation: Listenable.merge([
+                                  _carouselController,
+                                  _floatingController,
+                                ]),
                                 builder: (context, child) {
-                                  double value = 1.0;
-                                  if (_carouselController.hasClients && _carouselController.position.haveDimensions) {
+                                  double value = 0.0;
+                                  if (_carouselController.hasClients &&
+                                      _carouselController
+                                          .position
+                                          .haveDimensions) {
                                     value = _carouselController.page! - index;
-                                    value = (1 - (value.abs() * 0.2)).clamp(0.0, 1.0);
                                   } else {
-                                    value = _currentCarouselIndex == index ? 1.0 : 0.8;
+                                    value = (_currentCarouselIndex - index)
+                                        .toDouble();
                                   }
+
                                   
-                                  // Add floating effect only to the center item
-                                  final isCenter = _currentCarouselIndex == index;
-                                  final floatOffset = isCenter ? (Curves.easeInOutSine.transform(_floatingController.value) * 15 - 7.5) : 0.0;
+                                  double scale = (1 - (value.abs() * 0.2))
+                                      .clamp(0.8, 1.0);
+                                  
+                                  double opacity = (1 - (value.abs() * 0.5))
+                                      .clamp(0.5, 1.0);
+
+                                  
+                                  final isCenter =
+                                      _currentCarouselIndex == index;
+                                  final floatOffset = isCenter
+                                      ? (Curves.easeInOutSine.transform(
+                                                  _floatingController.value,
+                                                ) *
+                                                15 -
+                                            7.5)
+                                      : 0.0;
 
                                   return Center(
                                     child: Transform.translate(
                                       offset: Offset(0, floatOffset),
-                                      child: Transform.scale(
-                                        scale: Curves.easeOutBack.transform(value),
-                                        child: child,
+                                      child: Opacity(
+                                        opacity: opacity,
+                                        child: Transform.scale(
+                                          scale: Curves.easeOutBack.transform(
+                                            scale,
+                                          ),
+                                          child: child,
+                                        ),
                                       ),
                                     ),
                                   );
@@ -210,22 +279,27 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             },
                           ),
                         ),
-                        
+
                         const SizedBox(height: 16),
+
                         
-                        // "Watch Now" Image
                         Center(
                           child: Image.asset(
                             AppAssets.watchNow,
-                            height: 90,
+                            height: 140,
                             fit: BoxFit.contain,
                           ),
                         ),
-                        
+
                         const SizedBox(height: 48),
 
-                        // Action Category List
-                        _buildCategoryRow(l10n.action, categoryMovies, l10n.seeMore, context),
+                        
+                        _buildCategoryRow(
+                          l10n.action,
+                          categoryMovies,
+                          l10n.seeMore,
+                          context,
+                        ),
                       ],
                     ),
                   ),
@@ -239,7 +313,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildCategoryRow(String title, List<Movie> movies, String seeMoreText, BuildContext context) {
+  Widget _buildCategoryRow(
+    String title,
+    List<Movie> movies,
+    String seeMoreText,
+    BuildContext context,
+  ) {
     if (movies.isEmpty) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -251,10 +330,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                title, 
+                title,
                 style: const TextStyle(
-                  color: Colors.white, 
-                  fontSize: 22, 
+                  color: Colors.white,
+                  fontSize: 22,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.2,
                 ),
@@ -262,11 +341,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               Row(
                 children: [
                   Text(
-                    seeMoreText.replaceAll(' ->', ''), 
-                    style: const TextStyle(color: AppTheme.primaryYellow, fontSize: 14, fontWeight: FontWeight.bold),
+                    seeMoreText.replaceAll(' ->', ''),
+                    style: const TextStyle(
+                      color: AppTheme.primaryYellow,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(width: 4),
-                  const Icon(Icons.arrow_forward_rounded, color: AppTheme.primaryYellow, size: 16),
+                  const Icon(
+                    Icons.arrow_forward_rounded,
+                    color: AppTheme.primaryYellow,
+                    size: 16,
+                  ),
                 ],
               ),
             ],
@@ -282,10 +369,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             itemBuilder: (context, index) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: CinematicMovieCard(
-                  movie: movies[index],
-                  isHero: false,
-                ),
+                child: CinematicMovieCard(movie: movies[index], isHero: false),
               );
             },
           ),
@@ -298,11 +382,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 class CinematicMovieCard extends StatefulWidget {
   final Movie movie;
   final bool isHero;
+  final bool? isPressedExternal;
 
   const CinematicMovieCard({
     super.key,
     required this.movie,
     this.isHero = false,
+    this.isPressedExternal,
   });
 
   @override
@@ -314,73 +400,89 @@ class _CinematicMovieCardState extends State<CinematicMovieCard> {
 
   @override
   Widget build(BuildContext context) {
-    final width = widget.isHero ? 240.0 : 140.0;
-    final height = widget.isHero ? 360.0 : 210.0;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final width = widget.isHero ? 234.0 : 140.0;
+    final height = widget.isHero ? 351.0 : 210.0;
     final borderRadius = widget.isHero ? 32.0 : 28.0;
+    final bool isEffectivelyPressed = widget.isPressedExternal ?? _isPressed;
+
+    final content = AnimatedScale(
+      scale: isEffectivelyPressed ? 0.95 : 1.0,
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeInOut,
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(borderRadius),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(_isPressed ? 0.8 : 0.5),
+              blurRadius: widget.isHero ? 30 : 15,
+              spreadRadius: widget.isHero ? 5 : 0,
+              offset: Offset(0, widget.isHero ? 15 : 8),
+            ),
+            if (!widget.isHero && _isPressed)
+              BoxShadow(
+                color: AppTheme.primaryYellow.withOpacity(0.2),
+                blurRadius: 20,
+                spreadRadius: 2,
+              ),
+          ],
+        ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            
+            ClipRRect(
+              borderRadius: BorderRadius.circular(borderRadius),
+              child: CachedNetworkImage(
+                imageUrl: widget.isHero
+                    ? widget.movie.largeCoverImage
+                    : widget.movie.mediumCoverImage,
+                fit: BoxFit.cover,
+                memCacheWidth: widget.isHero ? 480 : 280,
+                placeholder: (context, url) =>
+                    Container(color: Colors.white.withOpacity(0.05)),
+                errorWidget: (context, url, error) => Container(
+                  color: Colors.grey[900],
+                  child: const Icon(Icons.broken_image, color: Colors.white38),
+                ),
+              ),
+            ),
+
+            
+            Positioned(
+              top: widget.isHero ? 16 : 12,
+              left: widget.isHero ? 16 : 12,
+              child: RepaintBoundary(
+                child: GlassmorphismBadge(rating: widget.movie.rating),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (widget.isPressedExternal != null) {
+      return content;
+    }
 
     return GestureDetector(
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) {
         setState(() => _isPressed = false);
-        Navigator.push(context, MaterialPageRoute(builder: (_) => MovieDetailsPage(movieId: widget.movie.id)));
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => MovieDetailsPage(movieId: widget.movie.id),
+          ),
+        );
       },
       onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: _isPressed ? 0.95 : 1.0,
-        duration: const Duration(milliseconds: 150),
-        curve: Curves.easeInOut,
-        child: Container(
-          width: width,
-          height: height,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(borderRadius),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(_isPressed ? 0.8 : 0.5),
-                blurRadius: widget.isHero ? 30 : 15,
-                spreadRadius: widget.isHero ? 5 : 0,
-                offset: Offset(0, widget.isHero ? 15 : 8),
-              ),
-              if (!widget.isHero && _isPressed)
-                BoxShadow(
-                  color: AppTheme.primaryYellow.withOpacity(0.2),
-                  blurRadius: 20,
-                  spreadRadius: 2,
-                ),
-            ],
-          ),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Poster Image
-              ClipRRect(
-                borderRadius: BorderRadius.circular(borderRadius),
-                child: CachedNetworkImage(
-                  imageUrl: widget.isHero ? widget.movie.largeCoverImage : widget.movie.mediumCoverImage,
-                  fit: BoxFit.cover,
-                  memCacheWidth: widget.isHero ? 480 : 280,
-                  placeholder: (context, url) => Container(
-                    color: Colors.white.withOpacity(0.05),
-                  ),
-                  errorWidget: (context, url, error) => Container(
-                    color: Colors.grey[900],
-                    child: const Icon(Icons.broken_image, color: Colors.white38),
-                  ),
-                ),
-              ),
-              
-              // Glassmorphism Rating Badge
-              Positioned(
-                top: widget.isHero ? 16 : 12,
-                left: widget.isHero ? 16 : 12,
-                child: RepaintBoundary(
-                  child: GlassmorphismBadge(rating: widget.movie.rating),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      child: content,
     );
   }
 }
@@ -406,16 +508,20 @@ class GlassmorphismBadge extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '$rating', 
+                '$rating',
                 style: const TextStyle(
-                  color: Colors.white, 
-                  fontSize: 14, 
+                  color: Colors.white,
+                  fontSize: 14,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.5,
                 ),
               ),
               const SizedBox(width: 4),
-              const Icon(Icons.star_rounded, color: AppTheme.primaryYellow, size: 16),
+              const Icon(
+                Icons.star_rounded,
+                color: AppTheme.primaryYellow,
+                size: 16,
+              ),
             ],
           ),
         ),
@@ -424,7 +530,7 @@ class GlassmorphismBadge extends StatelessWidget {
   }
 }
 
-// Custom Skeleton Loader for MoviesLoading State
+
 class _HomePageSkeleton extends StatefulWidget {
   const _HomePageSkeleton();
 
@@ -432,13 +538,17 @@ class _HomePageSkeleton extends StatefulWidget {
   State<_HomePageSkeleton> createState() => _HomePageSkeletonState();
 }
 
-class _HomePageSkeletonState extends State<_HomePageSkeleton> with SingleTickerProviderStateMixin {
+class _HomePageSkeletonState extends State<_HomePageSkeleton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _shimmerController;
 
   @override
   void initState() {
     super.initState();
-    _shimmerController = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat();
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat();
   }
 
   @override
@@ -471,50 +581,61 @@ class _HomePageSkeletonState extends State<_HomePageSkeleton> with SingleTickerP
         );
       },
       child: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 50),
-            Container(width: 200, height: 60, color: Colors.white), // Title skeleton
-            const SizedBox(height: 30),
-            Container(
-              width: 240, 
-              height: 360, 
-              decoration: BoxDecoration(
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              const SizedBox(height: 50),
+              Container(
+                width: 200,
+                height: 60,
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(32),
+              ), 
+              const SizedBox(height: 30),
+              Container(
+                width: 240,
+                height: 360,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(32),
+                ),
+              ), 
+              const SizedBox(height: 30),
+              Container(
+                width: 250,
+                height: 80,
+                color: Colors.white,
+              ), 
+              const SizedBox(height: 50),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(width: 100, height: 24, color: Colors.white),
+                    Container(width: 80, height: 20, color: Colors.white),
+                  ],
+                ),
               ),
-            ), // Center poster skeleton
-            const SizedBox(height: 30),
-            Container(width: 250, height: 80, color: Colors.white), // Watch now skeleton
-            const SizedBox(height: 50),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(width: 100, height: 24, color: Colors.white),
-                  Container(width: 80, height: 20, color: Colors.white),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 210,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: 3,
-                itemBuilder: (context, index) => Container(
-                  width: 140,
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(28),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 210,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: 3,
+                  itemBuilder: (context, index) => Container(
+                    width: 140,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(28),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

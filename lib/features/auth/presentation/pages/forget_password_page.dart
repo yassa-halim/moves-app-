@@ -64,7 +64,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Illustration Image
+              
               Image.asset(
                 AppAssets.forgotPasswordImage,
                 height: 300,
@@ -72,7 +72,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
               ),
               const SizedBox(height: 48),
 
-              // Email Field
+              
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -90,7 +90,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
               ),
               const SizedBox(height: 24),
 
-              // Verify Email Button
+              
               SizedBox(
                 height: 55,
                 child: ElevatedButton(
@@ -99,7 +99,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                     backgroundColor: AppTheme.primaryYellow,
                     foregroundColor: Colors.black,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(30),
                     ),
                   ),
                   child: Text(loc.verifyEmail, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),

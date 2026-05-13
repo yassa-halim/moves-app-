@@ -16,6 +16,7 @@ abstract class AuthRemoteDataSource {
   Future<void> logout();
   Future<void> resetPassword(String email);
   Future<User?> getCurrentUser();
+  Future<User> updateProfile({String? name, String? phone, String? avatarUrl});
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -60,7 +61,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         password: password,
       );
       if (credential.user != null) {
-        // Here we could save name, phone, and avatarId to Firestore, but for now we'll just update the display name.
+        
         await credential.user!.updateDisplayName(name);
         return _mapFirebaseUser(credential.user!);
       } else {
@@ -125,6 +126,26 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return _mapFirebaseUser(user);
     }
     return null;
+  }
+
+  @override
+  Future<User> updateProfile({String? name, String? phone, String? avatarUrl}) async {
+    try {
+      final user = firebaseAuth.currentUser;
+      if (user == null) throw AuthException('No authenticated user found');
+
+      if (name != null) await user.updateDisplayName(name);
+      if (avatarUrl != null) await user.updatePhotoURL(avatarUrl);
+      
+      
+      
+      
+      return _mapFirebaseUser(user);
+    } on firebase.FirebaseAuthException catch (e) {
+      throw AuthException(e.message ?? 'Update failed');
+    } catch (e) {
+      throw AuthException(e.toString());
+    }
   }
 
   User _mapFirebaseUser(firebase.User fbUser) {

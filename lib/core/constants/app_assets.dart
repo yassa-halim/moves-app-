@@ -1,6 +1,6 @@
 class AppAssets {
-  // We will use network images or simple placeholders for these, 
-  // but keeping paths here for future use if local assets are added.
+  
+  
   static const String splashLogo = 'assets/images/Group 44.png';
   static const String routeLogo = 'assets/images/Mask group.png';
   static const String onboardingCollage = 'assets/images/Movies Posters.png';
@@ -15,7 +15,7 @@ class AppAssets {
   static const String onboardingImage5Bg = 'assets/images/image 5.png';
   static const String onboardingImage5Fg = 'assets/images/image 5.(5) .png';
 
-  // Profile Avatars (Component 11 series)
+  
   static const String avatarBeardHeadphones = 'assets/images/Component 11 –  (1).png';
   static const String avatarGentleman = 'assets/images/Component 11 –  (2).png';
   static const String avatarRedheadGirl = 'assets/images/Component 11 –  (3).png';
@@ -26,19 +26,19 @@ class AppAssets {
   static const String avatarCurlyRedhead = 'assets/images/Component 11 –  (8).png';
   static const String avatarHoodieBoy = 'assets/images/Component 11 –  (9).png';
 
-  // Legacy Avatars
+  
   static const String avatar1 = 'assets/images/gamer (1).png';
   static const String avatar2 = 'assets/images/gamer (2).png';
   static const String avatar3 = 'assets/images/gamer (3).png';
 
-  // Flags
+  
   static const String flagLR = 'assets/images/LR.png';
   static const String flagEG = 'assets/images/EG.png';
 
-  // Forget Password
+  
   static const String forgotPasswordImage = 'assets/images/Forgot password-bro 1.png';
 
-  // Home Page
+  
   static const String availableNow = 'assets/images/Available Now.png';
   static const String watchNow = 'assets/images/Watch Now.png';
 }

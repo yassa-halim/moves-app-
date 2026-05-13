@@ -35,10 +35,10 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     
     _tabController = TabController(length: 2, vsync: this);
 
-    // Start staggered animation on load
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _staggerController.forward();
-      // Fetch movies to populate the Watch List and History grids
+      
       context.read<MoviesBloc>().add(const FetchMoviesEvent(page: 1));
     });
   }
@@ -80,7 +80,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                       child: Column(
                         children: [
                           const SizedBox(height: 24),
-                          // Header
+                          
                           _AnimatedReveal(
                             controller: _staggerController,
                             index: 0,
@@ -89,7 +89,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  // Avatar & Name
+                                  
                                   Column(
                                     children: [
                                       Container(
@@ -99,7 +99,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                                           shape: BoxShape.circle,
                                           image: user.avatarUrl != null
                                               ? DecorationImage(
-                                                  image: CachedNetworkImageProvider(user.avatarUrl!),
+                                                  image: AssetImage(user.avatarUrl!),
                                                   fit: BoxFit.cover,
                                                 )
                                               : null,
@@ -116,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                                     ],
                                   ),
                                   
-                                  // Stats
+                                  
                                   Row(
                                     children: [
                                       _buildStatColumn('12', 'Wish List'),
@@ -130,7 +130,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                           ),
                           const SizedBox(height: 32),
 
-                          // Action Buttons
+                          
                           _AnimatedReveal(
                             controller: _staggerController,
                             index: 1,
@@ -150,7 +150,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                                         height: 50,
                                         decoration: BoxDecoration(
                                           color: AppTheme.primaryYellow,
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(30),
                                           boxShadow: [
                                             BoxShadow(
                                               color: AppTheme.primaryYellow.withOpacity(0.3),
@@ -175,8 +175,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                                       child: Container(
                                         height: 50,
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFFE50914), // Netflix Red
-                                          borderRadius: BorderRadius.circular(16),
+                                          color: const Color(0xFFE50914), 
+                                          borderRadius: BorderRadius.circular(30),
                                           boxShadow: [
                                             BoxShadow(
                                               color: const Color(0xFFE50914).withOpacity(0.3),
@@ -208,12 +208,12 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                       ),
                     ),
                     
-                    // Sticky Tab Bar
+                    
                     SliverPersistentHeader(
                       pinned: true,
                       delegate: _StickyTabBarDelegate(
                         child: Container(
-                          color: AppTheme.backgroundDark.withOpacity(0.95), // Slight transparency for glass effect when scrolling
+                          color: AppTheme.backgroundDark.withOpacity(0.95), 
                           child: TabBar(
                             controller: _tabController,
                             indicatorColor: AppTheme.primaryYellow,
@@ -238,13 +238,13 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                     ),
                   ];
                 },
-                // Tab Views (The Grids)
+                
                 body: TabBarView(
                   controller: _tabController,
                   physics: const BouncingScrollPhysics(),
                   children: [
-                    _buildMoviesGrid(isHistory: false), // Watch List View
-                    _buildMoviesGrid(isHistory: true), // History View
+                    _buildMoviesGrid(isHistory: false), 
+                    _buildMoviesGrid(isHistory: true), 
                   ],
                 ),
               );
@@ -283,7 +283,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
         } else if (state is MoviesLoaded) {
           var movies = state.movies;
           
-          // MOCK: Reverse the list for History to make it look different from Watch List
+          
           if (isHistory && movies.isNotEmpty) {
             movies = movies.reversed.toList();
           }
@@ -306,7 +306,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
               final movie = movies[index];
               return _AnimatedReveal(
                 controller: _staggerController,
-                index: index % 6, // Keep animations fresh for grid
+                index: index % 6, 
                 child: _CinematicProfileMovieCard(movie: movie),
               );
             },
@@ -326,7 +326,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
           width: 150,
           height: 150,
         ),
-        const SizedBox(height: 120), // Padding to account for floating nav bar
+        const SizedBox(height: 80), 
       ],
     );
   }
@@ -381,17 +381,17 @@ class _CinematicProfileMovieCardState extends State<_CinematicProfileMovieCard> 
         curve: Curves.easeOutBack,
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(18),
             boxShadow: _isPressed 
               ? [BoxShadow(color: AppTheme.primaryYellow.withOpacity(0.3), blurRadius: 20, spreadRadius: 2)]
               : [BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 10, offset: const Offset(0, 5))],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(18),
             child: Stack(
               fit: StackFit.expand,
               children: [
-                // Poster
+                
                 CachedNetworkImage(
                   imageUrl: widget.movie.mediumCoverImage,
                   fit: BoxFit.cover,
@@ -400,19 +400,9 @@ class _CinematicProfileMovieCardState extends State<_CinematicProfileMovieCard> 
                   errorWidget: (context, url, error) => Container(color: Colors.white.withOpacity(0.05), child: const Icon(Icons.error, color: Colors.white54)),
                 ),
                 
-                // Bottom Gradient Overlay
-                Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.transparent, Colors.black87],
-                      stops: [0.6, 1.0],
-                    ),
-                  ),
-                ),
                 
-                // Rating Badge (Top Left)
+                
+                
                 Positioned(
                   top: 8,
                   left: 8,
